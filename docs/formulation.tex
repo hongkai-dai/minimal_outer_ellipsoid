@@ -1,0 +1,103 @@
+\documentclass{article}
+\usepackage{amsmath, amsfonts}
+\usepackage{fullpage}
+\usepackage{hyperref}
+\title{Minimum outer ellipsoid}
+\author{Hongkai Dai}
+\date{}
+\begin{document}
+\maketitle
+\section{Problem statement}
+Given a basic semi-algebraic set in $\mathbb{R}^n$.
+\begin{align}
+	\mathcal{K} = \{x | p_i(x) \le 0, i=1,\hdots, N\},
+\end{align}
+where $p_i(x)$ is a polynomial of $x$, we want to find the smallest ellipsoid $\mathcal{E}$ (measured by the ellipsoid volume) that covers this basic semialgebraic set $\mathcal{K}$, namely $\mathcal{E}\supset\mathcal{K}$.
+
+\section{Approach}
+We parameterize the ellipsoid as
+\begin{align}
+	\mathcal{E} = \{x | x^TSx+b^Tx+c\le 0\} \label{eq:ellipsoid},
+\end{align}
+where $S\succeq 0, b, c$ are parameters of the ellipsoid. Notice that these parameters show up linearly in the ellipsoid \eqref{eq:ellipsoid}.
+
+\subsection{Containment constraint}
+To impose the containment constraint $\mathcal{E}\supset\mathcal{K}$, we use the \textit{Positivestellasatz} (p-satz), a common technique for proving containment between basic semi-algebraic sets:
+\begin{subequations}
+\begin{align}
+	-(1+\lambda_0(x))(x^TSx + b^Tx + c) + \sum_{i=1}^N \lambda_i(x) p_i(x) \text{ is sos}\\
+	\lambda_0(x) \text{ is sos}, \lambda_i(x) \text{ is sos}, i=1,\hdots, N
+\end{align}
+	\label{eq:ellipsoid_containment}
+\end{subequations}
+where ``is sos" means the polynomial is a sum-of-squares (sos) polynomial. A polynomial being sos is a convex constraint on the polynomial coefficients. In \eqref{eq:ellipsoid_containment}, the polynomial $\lambda_0(x)$ is given, and we search for $S, b, c, \lambda_i(x), i=1,\hdots, N$.
+
+\subsection{Minimize volume}
+Our goal is to minimize the volume of the ellipsoid $\mathcal{E}$. We know that
+\begin{align}
+	\text{vol}(\mathcal{E})\propto\left(\frac{b^TS^{-1}b/4-c}{\text{det}(S)^{1/n}}\right)^{\frac{n}{2}} \label{eq:ellipsoid_volume}
+\end{align}
+where $n$ is the dimensionality of $x$. So our goal is to minimize this volume
+\begin{align}
+	\min_{S, b, c} \frac{b^TS^{-1}b/4-c}{\text{det}(S)^{1/n}} \label{eq:minimize_volume}
+\end{align}
+
+\subsubsection{Attempt 1}
+How can we minimize this term in \eqref{eq:ellipsoid_volume} through convex optimization? We know that $-\log\text{det}(S)$ is a convex function of $S$, so how about taking the logarithm of \eqref{eq:ellipsoid_volume} as
+\begin{align}
+	\log(b^TS^{-1}b/4-c) - \frac{1}{n}\log\text{det}(S) \label{eq:log_volume}
+\end{align}
+. The second term $-\frac{1}{n}\log\text{det}(S)$ is a convex function. Moreover, the term $b^TS^{-1}b/4-c$ is convex. Indeed, we can minimize this term through convex optimization
+\begin{subequations}
+\begin{align}
+	\min_{S, b, c, t}& t\\
+	\text{s.t }& \begin{bmatrix} t + c & b^T/2\\ b/2 & S \end{bmatrix} \succeq 0.
+\end{align}
+\label{eq:minimize_bsb}
+\end{subequations}
+We can prove that \eqref{eq:minimize_bsb} is equivalent to $\min b^TS^{-1}b/4-c$ from the Schur complement: $t \ge b^TS^{-1}b/4-c \Leftrightarrow \begin{bmatrix} t+c & b^T/2 \\b/2 & S \end{bmatrix} \succeq 0$. As a result, the objective \eqref{eq:log_volume} can be rewritten as $\min \log t - \frac{1}{n}\log\text{det}(S)$. Unfortunately its first term $\log t$ is not a convex function of $t$ (it is a concave function). Hence I cannot minimize this objective \eqref{eq:log_volume} through convex optimization.
+
+\subsubsection{Attempt 2}
+As we see in the previous subsection, we can minimize the numerator $b^TS^{-1}b/4-c$ of \eqref{eq:ellipsoid_volume} through convex optimization, but not the logarithm of this numerator. To resolve this, let's look at the volume in \eqref{eq:ellipsoid_volume} again. Notice that the volume is homogeneous w.r.t $(S, b, c)$, namely if we scale it by a factor of $k$ to $(kS, kb, kc)$, the volume is still the same. Hence without loss of generality, we can assume that the denominator is lower bounded by 1, and only minimize the numerator
+\begin{subequations}
+\begin{align}
+	\min_{S, b, c}&\; b^TS^{-1}b/4-c\\
+	\text{s.t }& \text{det}(S)^{\frac{1}{n}}\ge 1. \label{eq:minimize_volume_bound_denominator2}
+\end{align}
+\label{eq:minimize_volume_bound_denominator}
+\end{subequations}
+The optimization problem \eqref{eq:minimize_volume_bound_denominator} is equivalent to the original problem \eqref{eq:minimize_volume} which minimizes the ellipsoid volume. The constraint \eqref{eq:minimize_volume_bound_denominator2} is non-convex, but we can convert it to a convex constraint by taking its logarithm
+\begin{subequations}
+\begin{align}
+	\min_{S, b, c}&\; b^TS^{-1}b/4-c\\
+	\text{s.t }& \log\text{det}(S)\ge 0. 
+\end{align}
+\label{eq:minimize_volume_bound_denominator_log}
+\end{subequations}
+Both the objective and the constraint in \eqref{eq:minimize_volume_bound_denominator_log} are convex, hence we can minimize the volume of this ellipsoid through a convex optimization problem.
+
+Some solvers would prefer formulating the convex problem as a conic optimization problem, with linear objective function and linear or conic constraints. To do so, we use \eqref{eq:minimize_bsb} to convert the objective in \eqref{eq:minimize_volume_bound_denominator_log} to the linear objective with conic constraints. Also we bring in the containment constraints in \eqref{eq:ellipsoid_containment} to the optimization problem
+\begin{subequations}
+\begin{align}
+	\min_{\substack{S, b, c, t\\ \phi_i(x), i=1,\hdots,N}}& \; t\\
+	\text{s.t }& \begin{bmatrix} c + t & b^T/2 \\ b/2 & S\end{bmatrix} \succeq 0\\
+		&\log\text{det}(S) \ge 0\\
+	&-(1+\lambda_0(x))(x^TSx + b^Tx + c) + \sum_{i=1}^N \lambda_i(x) p_i(x) \text{ is sos}\\
+	&\lambda_i(x) \text{ is sos}, i=1,\hdots, N,
+\end{align}
+\end{subequations}
+where we assume $\lambda_0(x)$ is a given sos polynomial (and often set to $\lambda_0(x) = 0$). Note that the constraint $\log\text{det}(S) \ge 0$ can also be written in the conic form (with positive semidefinite constraints and exponential cone constraints), as described in \href{https://docs.mosek.com/modeling-cookbook/sdo.html#log-determinant}{Mosek doc}.
+
+\section{Appendix}
+\subsection{Ellipsoid volume}
+In this sub-section, we derive the ellipsoid volume equation \eqref{eq:ellipsoid_volume}. We can rewrite the ellipsoid as
+\begin{align}
+	\Vert A(x+S^{-1}b/2)\Vert_2 \le \sqrt{b^TS^{-1}b/4-c}
+\end{align}
+where $A^TA = S$. If we denote $y = A(x + S^{-1}b/2)$, then we know the volume of the hypersphere $\mathcal{O} = \{y | \Vert y\Vert_2\le \sqrt{b^TS^{-1}b/4-c}\}$ is proportional to $(b^TS^{-1}b/4-c)^{\frac{n}{2}}$. Since $y=A(x+S^{-1}b/2)$ is an affine transformation of $x$, and the volume of a set after an affine transformation is scaled by the determinant of the transformation matrix, we know that the volume of the ellipsoid $\mathcal{E}$ can be computed from the volume of the hypersphere $\mathcal{O}$ as
+\begin{align}
+	\text{vol}(\mathcal{E}) = \frac{\text{vol}(\mathcal{O})}{\text{det}(A)} \propto \left(\frac{b^TS^{-1}b/4-c}{\text{det}(S)^{1/n}}\right)^{\frac{n}{2}},
+\end{align}
+where we use the fact that $\text{det}(A) = \text{det}(S)^{\frac{1}{2}}$.
+
+\end{document}
