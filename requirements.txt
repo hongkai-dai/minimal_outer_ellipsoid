@@ -3,3 +3,4 @@ drake
 flake8
 matplotlib
 numpy
+pytest
