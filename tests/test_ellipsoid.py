@@ -101,6 +101,54 @@ def test_add_containment_constraint2():
     assert all(np.array(in_outer_ellipsoid)[in_tetrahedron])
 
 
+def test_add_minimize_volume_cost():
+    """
+    Find the smallest outer ellipsoid that covers a given ellipsoid. The
+    smallest outer ellipsoid is this inner ellipsoid.
+    """
+
+    prog = solvers.MathematicalProgram()
+    dim = 3
+    S = prog.NewSymmetricContinuousVariables(dim, "S")
+    b = prog.NewContinuousVariables(dim, "b")
+    c = prog.NewContinuousVariables(1, "c")[0]
+
+    S_inner = np.array([[1, 2, 3], [2, 3, 4], [3, 4, 5.0]])
+    S_inner = S_inner.T @ S_inner + 10 * np.eye(dim)
+    b_inner = np.array([2, 4, 5.0])
+    c_inner = b_inner.dot(np.linalg.solve(S_inner, b_inner)) / 4 - 0.5
+
+    # By Schur complement, the condition that ellipsoid {x | x'Sx+b'x+c<=0}
+    # contains {x | x'S_innerx+b_inner'x+c_inner<=0} is that there exists
+    # γ>=0, such that the matrix
+    # [γS_inner-S       (γb_inner - b)/2] is psd.
+    # [(γb_inner-b)'/2       γc_inner-c ]
+    gamma = prog.NewContinuousVariables(1, "gamma")[0]
+    prog.AddBoundingBoxConstraint(0, np.inf, gamma)
+    psd_mat = np.empty((dim + 1, dim + 1), dtype=object)
+    psd_mat[:dim, :dim] = gamma * S_inner - S
+    psd_mat[:dim, -1] = (gamma * b_inner - b) / 2
+    psd_mat[-1, :dim] = (gamma * b_inner - b) / 2
+    psd_mat[-1, -1] = gamma * c_inner - c
+    prog.AddPositiveSemidefiniteConstraint(psd_mat)
+
+    t = mut.add_minimize_volume_cost(prog, S, b, c)
+
+    result = solvers.Solve(prog)
+    assert result.is_success()
+    S_sol = result.GetSolution(S)
+    b_sol = result.GetSolution(b)
+    c_sol = result.GetSolution(c)
+
+    ratio = c_sol / c_inner
+    np.testing.assert_allclose(S_sol, S_inner * ratio)
+    np.testing.assert_allclose(b_sol, b_inner * ratio)
+    t_sol = result.GetSolution(t)
+    np.testing.assert_almost_equal(
+        t_sol, b_sol.dot(np.linalg.solve(S_sol, b_sol)) / 4 - c_sol
+    )
+
+
 def test_in_ellipsoid():
     center = np.array([0, 1, 1.5])
     A = np.diag(np.array([1, 2, 3]))

@@ -43,7 +43,7 @@ where $n$ is the dimensionality of $x$. So our goal is to minimize this volume
 \end{align}
 
 \subsubsection{Attempt 1}
-How can we minimize this term in \eqref{eq:ellipsoid_volume} through convex optimization? We know that $-\log\text{det}(S)$ is a convex function of $S$, so how about taking the logarithm of \eqref{eq:ellipsoid_volume} as
+How can we minimize this term in \eqref{eq:minimize_volume} through convex optimization? We know that $-\log\text{det}(S)$ is a convex function of $S$, so how about taking the logarithm of \eqref{eq:minimize_volume} as
 \begin{align}
 	\log(b^TS^{-1}b/4-c) - \frac{1}{n}\log\text{det}(S) \label{eq:log_volume}
 \end{align}
@@ -58,7 +58,7 @@ How can we minimize this term in \eqref{eq:ellipsoid_volume} through convex opti
 We can prove that \eqref{eq:minimize_bsb} is equivalent to $\min b^TS^{-1}b/4-c$ from the Schur complement: $t \ge b^TS^{-1}b/4-c \Leftrightarrow \begin{bmatrix} t+c & b^T/2 \\b/2 & S \end{bmatrix} \succeq 0$. As a result, the objective \eqref{eq:log_volume} can be rewritten as $\min \log t - \frac{1}{n}\log\text{det}(S)$. Unfortunately its first term $\log t$ is not a convex function of $t$ (it is a concave function). Hence I cannot minimize this objective \eqref{eq:log_volume} through convex optimization.
 
 \subsubsection{Attempt 2}
-As we see in the previous subsection, we can minimize the numerator $b^TS^{-1}b/4-c$ of \eqref{eq:ellipsoid_volume} through convex optimization, but not the logarithm of this numerator. To resolve this, let's look at the volume in \eqref{eq:ellipsoid_volume} again. Notice that the volume is homogeneous w.r.t $(S, b, c)$, namely if we scale it by a factor of $k$ to $(kS, kb, kc)$, the volume is still the same. Hence without loss of generality, we can assume that the denominator is lower bounded by 1, and only minimize the numerator
+As we see in the previous subsection, we can minimize the numerator $b^TS^{-1}b/4-c$ of \eqref{eq:minimize_volume} through convex optimization, but not the logarithm of this numerator. To resolve this, let's look at the volume in \eqref{eq:ellipsoid_volume} again. Notice that the volume is homogeneous w.r.t $(S, b, c)$, namely if we scale it by a factor of $k$ to $(kS, kb, kc)$, the volume is still the same. Hence without loss of generality, we can assume that the denominator is lower bounded by 1, and only minimize the numerator
 \begin{subequations}
 \begin{align}
 	\min_{S, b, c}&\; b^TS^{-1}b/4-c\\
