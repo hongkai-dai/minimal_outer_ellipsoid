@@ -3,7 +3,7 @@ import pytest  # noqa
 import pydrake.solvers as solvers
 import pydrake.symbolic as sym
 
-import minimum_outer_ellipsoid.ellipsoid as mut
+import minimal_outer_ellipsoid.ellipsoid as mut
 
 
 def test_add_containment_constraint1():
@@ -167,3 +167,19 @@ def test_in_ellipsoid():
         c,
         (center + np.array([[0.5, 0, 0.2], [1.1, 0, 0], [1.2, 0, -1]])) @ A.T,
     ) == [True, False, False]
+
+
+def test_to_affine_ball():
+
+    def check(S, b, c):
+        A, d = mut.to_affine_ball(S, b, c)
+
+        # The ellipsoid is {x | xᵀA⁻ᵀA⁻¹x − 2dᵀA⁻¹x + dᵀd−1 ≤ 0}
+        ratio = (d.dot(d) - 1) / c
+        np.testing.assert_allclose(np.linalg.inv(A @ A.T), S * ratio)
+        np.testing.assert_allclose(-2 * np.linalg.solve(A.T, d), b * ratio)
+
+
+    check(np.eye(2), np.zeros(2), 1)
+    check(np.diag(np.array([1., 2., 3.])), np.array([2., 3., 4.]), -10)
+

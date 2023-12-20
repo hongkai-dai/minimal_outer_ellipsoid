@@ -1,4 +1,4 @@
-from typing import List, Optional, Union
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pydrake.solvers as solvers
@@ -128,3 +128,38 @@ def in_ellipsoid(
     else:
         assert pts.shape[1] == dim
         return (np.sum(pts * (pts @ S), axis=1) + pts @ b + c <= 0).tolist()
+
+
+def to_affine_ball(
+    S: np.ndarray, b: np.ndarray, c: float
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Convert the ellipsoid in the form {x | xᵀSx+bᵀx+c ≤ 0} to an alternative
+    form as an affine transformation of a ball {A(y+d) | |y|₂ ≤ 1 }
+
+    Args:
+      S: A symmetric matrix that parameterizes the ellipsoid.
+      b: A vector that parameterizes the ellipsoid.
+      c: A float that parameterizes the ellipsoid.
+    Returns:
+      A: The affine transformation of the ball.
+      d: The center of the ellipsoid.
+    """
+
+    # The ellipsoid can be written as
+    # {x | xᵀA⁻ᵀA⁻¹x − 2dᵀA⁻¹x + dᵀd−1 ≤ 0}. To match it with xᵀSx+bᵀx+c ≤ 0, we introduce a scalar k, with the constraint
+    # A⁻ᵀA⁻¹ = kS
+    # −2A⁻ᵀd = kb
+    # dᵀd−1 = kc
+    # To solve these equations, I define A̅ = A * √k, d̅ = d/√k
+    # Hence I know A̅⁻ᵀA̅⁻¹ = S
+    bar_A_inv = np.linalg.cholesky(S).T
+    bar_A = np.linalg.inv(bar_A_inv)
+    # −2A̅⁻ᵀd̅=b
+    bar_d = bar_A.T @ b / -2
+    # kd̅ᵀd̅−1 = kc
+    k = 1 / (bar_d.dot(bar_d) - c)
+    sqrt_k = np.sqrt(k)
+    A = bar_A / sqrt_k
+    d = bar_d * sqrt_k
+    return (A, d)

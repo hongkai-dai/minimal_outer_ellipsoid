@@ -4,5 +4,5 @@ docs/*.bbl
 docs/*.blg
 docs/*.out
 venv/*
-minimum_outer_ellipsoid.egg-info/*
+minimal_outer_ellipsoid.egg-info/*
 
