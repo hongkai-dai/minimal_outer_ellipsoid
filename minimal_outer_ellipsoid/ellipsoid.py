@@ -147,7 +147,8 @@ def to_affine_ball(
     """
 
     # The ellipsoid can be written as
-    # {x | xᵀA⁻ᵀA⁻¹x − 2dᵀA⁻¹x + dᵀd−1 ≤ 0}. To match it with xᵀSx+bᵀx+c ≤ 0, we introduce a scalar k, with the constraint
+    # {x | xᵀA⁻ᵀA⁻¹x − 2dᵀA⁻¹x + dᵀd−1 ≤ 0}. To match it with xᵀSx+bᵀx+c ≤ 0,
+    # we introduce a scalar k, with the constraint
     # A⁻ᵀA⁻¹ = kS
     # −2A⁻ᵀd = kb
     # dᵀd−1 = kc

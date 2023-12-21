@@ -170,7 +170,6 @@ def test_in_ellipsoid():
 
 
 def test_to_affine_ball():
-
     def check(S, b, c):
         A, d = mut.to_affine_ball(S, b, c)
 
@@ -179,7 +178,5 @@ def test_to_affine_ball():
         np.testing.assert_allclose(np.linalg.inv(A @ A.T), S * ratio)
         np.testing.assert_allclose(-2 * np.linalg.solve(A.T, d), b * ratio)
 
-
     check(np.eye(2), np.zeros(2), 1)
-    check(np.diag(np.array([1., 2., 3.])), np.array([2., 3., 4.]), -10)
-
+    check(np.diag(np.array([1.0, 2.0, 3.0])), np.array([2.0, 3.0, 4.0]), -10)
