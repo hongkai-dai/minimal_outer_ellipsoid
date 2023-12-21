@@ -2,9 +2,15 @@
 Given a basic semi-algebraic set (namely a set defined by polynomial inequalities and equalities) $\mathcal{K} = \{x |p_i(x)\le 0, i=1,...,N\}$ (where $p_i(x)$ is a polynomial function of $x$), we aim at finding the minimal outer ellipsoid that covers this basic semi-algebraic set $\mathcal{K}$ through convex optimization.
 
 For example, here we show the minimal outer ellipsoid that covers the inner shape (black)
-![image](./examples/outer_ellipsoid_2d.png)
+
+$$ x_0^4 + x_1^4 - 1.925x_0^2x_1^2 \le 1, x_1 \le 1.25 $$
+
+![image](./examples/outer_ellipsoid2d.gif)
 
 and here is an example in 3D that our ellipsoid (green) covers the inner shape (blue)
+
+$$ x_0^4 + x_1^4 - 1.925x_0^2x_1^2+x_2\le 1, x_2 \ge 0 $$
+
 ![image](./examples/3d_ellipsoid.gif)
 ## Getting started
 You can install the package and the dependencies through
