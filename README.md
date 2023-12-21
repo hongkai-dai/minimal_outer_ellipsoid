@@ -22,6 +22,6 @@ pip install -e .
 We use [Drake](https://drake.mit.edu) to write our optimization program. If you are unfamiliar with Drake, you can checkout its [tutorials](https://deepnote.com/workspace/Drake-0b3b2c53-a7ad-441b-80f8-bf8350752305/project/Tutorials-2b4fc509-aef2-417d-a40d-6071dfed9199/%2Findex.ipynb).
 
 ### Examples
-You can check the jupyter notebook examples in `examples` folder. For a mathematical explanation on our optimization program, check `docs/formulation.pdf` file.
+You can check the jupyter notebook examples in `examples` folder. For a mathematical explanation on our optimization program, check our [doc](./docs/formulation.pdf)
 
 
