@@ -10,9 +10,9 @@
 \section{Problem statement}
 Given a basic semi-algebraic set in $\mathbb{R}^n$.
 \begin{align}
-	\mathcal{K} = \{x | p_i(x) \le 0, i=1,\hdots, N\},
+	\mathcal{K} = \{x | p_i(x) \le 0, i=0,\hdots, N, q_j(x) = 0, j=0,...,M\},
 \end{align}
-where $p_i(x)$ is a polynomial of $x$, we want to find the smallest ellipsoid $\mathcal{E}$ (measured by the ellipsoid volume) that covers this basic semialgebraic set $\mathcal{K}$, namely $\mathcal{E}\supset\mathcal{K}$.
+where $p_i(x), q_j(x)$ are polynomials of $x$, we want to find the smallest ellipsoid $\mathcal{E}$ (measured by the ellipsoid volume) that covers this basic semialgebraic set $\mathcal{K}$, namely $\mathcal{E}\supset\mathcal{K}$.
 
 \section{Approach}
 We parameterize the ellipsoid as
@@ -25,12 +25,12 @@ where $S\succeq 0, b, c$ are parameters of the ellipsoid. Notice that these para
 To impose the containment constraint $\mathcal{E}\supset\mathcal{K}$, we use the \textit{Positivestellasatz} (p-satz), a common technique for proving containment between basic semi-algebraic sets:
 \begin{subequations}
 \begin{align}
-	-(1+\lambda_0(x))(x^TSx + b^Tx + c) + \sum_{i=1}^N \lambda_i(x) p_i(x) \text{ is sos}\\
-	\lambda_0(x) \text{ is sos}, \lambda_i(x) \text{ is sos}, i=1,\hdots, N
+	-(1+\beta(x))(x^TSx + b^Tx + c) + \sum_{i=0}^N \lambda_i(x) p_i(x) + \sum_{j=0}^M \sigma_j(x)q_j(x) \text{ is sos}\\
+	\beta(x) \text{ is sos}, \lambda_i(x) \text{ is sos}, i=0,\hdots, N
 \end{align}
 	\label{eq:ellipsoid_containment}
 \end{subequations}
-where ``is sos" means the polynomial is a sum-of-squares (sos) polynomial. A polynomial being sos is a convex constraint on the polynomial coefficients. In \eqref{eq:ellipsoid_containment}, the polynomial $\lambda_0(x)$ is given, and we search for $S, b, c, \lambda_i(x), i=1,\hdots, N$.
+where ``is sos" means the polynomial is a sum-of-squares (sos) polynomial. A polynomial being sos is a convex constraint on the polynomial coefficients. In \eqref{eq:ellipsoid_containment}, the polynomial $\beta(x)$ is given, and we search for $S, b, c, \lambda_i(x), i=0,\hdots, N$.
 
 \subsection{Minimize volume}
 Our goal is to minimize the volume of the ellipsoid $\mathcal{E}$. We know that
@@ -79,14 +79,14 @@ Both the objective and the constraint in \eqref{eq:minimize_volume_bound_denomin
 Some solvers would prefer formulating the convex problem as a conic optimization problem, with linear objective function and linear or conic constraints. To do so, we use \eqref{eq:minimize_bsb} to convert the objective in \eqref{eq:minimize_volume_bound_denominator_log} to the linear objective with conic constraints. Also we bring in the containment constraints in \eqref{eq:ellipsoid_containment} to the optimization problem
 \begin{subequations}
 \begin{align}
-	\min_{\substack{S, b, c, t\\ \phi_i(x), i=1,\hdots,N}}& \; t\\
+	\min_{\substack{S, b, c, t\\ \lambda_i(x), i=0,\hdots,N\\ \sigma_j(x), j=0,\hdots,M}}& \; t\\
 	\text{s.t }& \begin{bmatrix} c + t & b^T/2 \\ b/2 & S\end{bmatrix} \succeq 0\\
 		&\log\text{det}(S) \ge 0\\
-	&-(1+\lambda_0(x))(x^TSx + b^Tx + c) + \sum_{i=1}^N \lambda_i(x) p_i(x) \text{ is sos}\\
-	&\lambda_i(x) \text{ is sos}, i=1,\hdots, N,
+	&-(1+\beta(x))(x^TSx + b^Tx + c) + \sum_{i=0}^N \lambda_i(x) p_i(x) + \sum_{j=0}^M\sigma_j(x)q_j(x)\text{ is sos}\\
+	&\lambda_i(x) \text{ is sos}, i=0,\hdots, N,
 \end{align}
 \end{subequations}
-where we assume $\lambda_0(x)$ is a given sos polynomial (and often set to $\lambda_0(x) = 0$). Note that the constraint $\log\text{det}(S) \ge 0$ can also be written in the conic form (with positive semidefinite constraints and exponential cone constraints), as described in \href{https://docs.mosek.com/modeling-cookbook/sdo.html#log-determinant}{Mosek doc}.
+where we assume $\beta(x)$ is a given sos polynomial (and often set to $\beta(x) = 0$). Note that the constraint $\log\text{det}(S) \ge 0$ can also be written in the conic form (with positive semidefinite constraints and exponential cone constraints), as described in \href{https://docs.mosek.com/modeling-cookbook/sdo.html#log-determinant}{Mosek doc}.
 
 \section{Appendix}
 \subsection{Ellipsoid volume}

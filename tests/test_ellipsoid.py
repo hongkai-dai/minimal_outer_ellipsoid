@@ -21,7 +21,7 @@ def test_add_containment_constraint1():
     S_inner = np.diag(np.array([2.0, 3.0]))
     b_inner = np.array([1.0, 2.0])
     c_inner = b_inner.dot(np.linalg.solve(S_inner, b_inner)) / 4 - 0.5
-    inner_polynomials = np.array(
+    inner_ineq_polynomials = np.array(
         [
             sym.Polynomial(
                 x.dot(S_inner @ x) + b_inner.dot(x) + c_inner,
@@ -29,18 +29,32 @@ def test_add_containment_constraint1():
             )
         ]
     )
-    inner_poly_lagrangians_degrees = [0]
-    inner_poly_lagrangians = mut.add_containment_constraint(
-        prog, x, inner_polynomials, S, b, c, inner_poly_lagrangians_degrees
+    inner_eq_polynomials = np.empty(())
+    inner_ineq_poly_lagrangians_degrees = [0]
+    inner_eq_poly_lagrangians_degrees = []
+    (
+        inner_ineq_poly_lagrangians,
+        inner_eq_poly_lagrangians,
+    ) = mut.add_containment_constraint(
+        prog,
+        x,
+        inner_ineq_polynomials,
+        inner_eq_polynomials,
+        S,
+        b,
+        c,
+        inner_ineq_poly_lagrangians_degrees,
+        inner_eq_poly_lagrangians_degrees,
     )
-    assert inner_poly_lagrangians.shape == (1,)
-    assert inner_poly_lagrangians[0].TotalDegree() == 0
+    assert inner_ineq_poly_lagrangians.shape == (1,)
+    assert inner_ineq_poly_lagrangians[0].TotalDegree() == 0
+    assert inner_eq_poly_lagrangians.size == 0
     result = solvers.Solve(prog)
     assert result.is_success()
-    inner_poly_lagrangians_sol = result.GetSolution(
-        inner_poly_lagrangians[0]
+    inner_ineq_poly_lagrangians_sol = result.GetSolution(
+        inner_ineq_poly_lagrangians[0]
     ).Evaluate({})
-    assert inner_poly_lagrangians_sol >= 0
+    assert inner_ineq_poly_lagrangians_sol >= 0
 
     # Now sample many points, if the point is in the inner ellipsoid, then it
     # has to be in the outer ellipsoid.
@@ -65,7 +79,7 @@ def test_add_containment_constraint2():
     b = prog.NewContinuousVariables(dim, "b")
     c = prog.NewContinuousVariables(1, "c")[0]
 
-    inner_polynomials = np.array(
+    inner_ineq_polynomials = np.array(
         [
             sym.Polynomial(-x[0]),
             sym.Polynomial(-x[1]),
@@ -73,17 +87,26 @@ def test_add_containment_constraint2():
             sym.Polynomial(x[0] + x[1] + x[2] - 1),
         ]
     )
-    inner_poly_lagrangians = mut.add_containment_constraint(
+    inner_eq_polynomials = np.empty(())
+    (
+        inner_ineq_poly_lagrangians,
+        inner_eq_poly_lagrangians,
+    ) = mut.add_containment_constraint(
         prog,
         x,
-        inner_polynomials,
+        inner_ineq_polynomials,
+        inner_eq_polynomials,
         S,
         b,
         c,
-        inner_poly_lagrangians_degrees=[2] * 4,
+        inner_ineq_poly_lagrangians_degrees=[2] * 4,
+        inner_eq_poly_lagrangians_degrees=[],
     )
-    assert inner_poly_lagrangians.shape == (4,)
-    assert all([poly.TotalDegree() == 2 for poly in inner_poly_lagrangians])
+    assert inner_ineq_poly_lagrangians.shape == (4,)
+    assert all(
+        [poly.TotalDegree() == 2 for poly in inner_ineq_poly_lagrangians]
+    )
+    assert inner_eq_poly_lagrangians.size == 0
 
     result = solvers.Solve(prog)
     assert result.is_success()
