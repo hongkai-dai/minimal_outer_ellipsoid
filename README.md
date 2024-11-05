@@ -1,5 +1,5 @@
 # Minimal outer ellipsoid
-Given a basic semi-algebraic set (namely a set defined by polynomial inequalities and equalities) $\mathcal{K} = \{x |p_i(x)\le 0, i=0,...,N, q_j(x)=0, j=0,...,M\}$ (where $p_i(x), q_j(x)$ are polynomial functions of $x$), we aim at finding the minimal outer ellipsoid that covers this basic semi-algebraic set $\mathcal{K}$ through convex optimization.
+Given a basic semi-algebraic set (namely a set defined by polynomial inequalities and equalities) $\mathcal{K} = \{x |p_i(x)\le 0, i=0,...,N, q_j(x)=0, j=0,...,M\}$ (where $p_i(x), q_j(x)$ are polynomial functions of $x$), together with some points $v_1, v_2, ..., v_n$, we aim at finding the minimal outer ellipsoid that covers both this basic semi-algebraic set $\mathcal{K}$ and points $v_i, i=1,...,n$ through convex optimization.
 
 For example, here we show the minimal outer ellipsoid that covers the inner shape (black)
 
