@@ -124,6 +124,22 @@ def test_add_containment_constraint2():
     assert all(np.array(in_outer_ellipsoid)[in_tetrahedron])
 
 
+def test_add_pts_in_ellipsoid_constraint():
+    prog = solvers.MathematicalProgram()
+    S = prog.NewSymmetricContinuousVariables(2, "S")
+    b = prog.NewContinuousVariables(2, "b")
+    c = prog.NewContinuousVariables(1, "c")[0]
+    prog.AddPositiveSemidefiniteConstraint(S)
+    pts = np.array([[2, 1], [-2, 1], [-2, -1], [2, -1]])
+    mut.add_pts_in_ellipsoid_constraint(prog, pts, S, b, c)
+    result = solvers.Solve(prog)
+    assert result.is_success()
+    S_sol = result.GetSolution(S)
+    b_sol = result.GetSolution(b)
+    c_sol = result.GetSolution(c)
+    assert all(mut.in_ellipsoid(S_sol, b_sol, c_sol, pts))
+
+
 def test_add_minimize_volume_cost():
     """
     Find the smallest outer ellipsoid that covers a given ellipsoid. The

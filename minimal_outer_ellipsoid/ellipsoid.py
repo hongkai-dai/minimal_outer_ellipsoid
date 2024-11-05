@@ -99,6 +99,41 @@ def add_containment_constraint(
     return inner_ineq_poly_lagrangians, inner_eq_poly_lagrangians
 
 
+def add_pts_in_ellipsoid_constraint(
+    prog: solvers.MathematicalProgram,
+    pts: np.ndarray,
+    S: np.ndarray,
+    b: np.ndarray,
+    c: sym.Variable,
+):
+    """
+    Add the linear constraints that the point pts[i] is in the ellipsoid
+    {x | xᵀSx + bᵀx + c <= 0}.
+
+    Args:
+      pts: pts[i] is the i'th point to be contained inside the ellipsoid.
+    """
+    assert pts.shape[1] == S.shape[0]
+    num_pts = pts.shape[0]
+
+    # A point v is within the ellipsoid iff vᵀSv + bᵀv+c<=0, which is
+    # equivalent to trace(S * vvᵀ)+bᵀv+c <= 0.
+    # pts_outer[i] is the outer product pts[i]*pts[i]ᵀ
+    pts_outer = np.concatenate(
+        [np.expand_dims(np.outer(v, v), axis=0) for v in pts], axis=0
+    )
+    # pts_outer_flat[i] is the "flat" vector of pts_outer[i]
+    pts_outer_flat = pts_outer.reshape((pts_outer.shape[0], -1))
+    # The linear constraint can be written as
+    # pts_outer_flat * S_flat + pts * b + c <= 0
+    prog.AddLinearConstraint(
+        np.concatenate([pts_outer_flat, pts, np.ones((num_pts, 1))], axis=1),
+        np.full((num_pts,), -np.inf),
+        np.zeros((num_pts,)),
+        np.concatenate([S.reshape((-1,)), b, np.array([c])]),
+    )
+
+
 def add_minimize_volume_cost(
     prog: solvers.MathematicalProgram,
     S: np.ndarray,
