@@ -12,6 +12,11 @@ and here is an example in 3D that our ellipsoid (green) covers the inner shape (
 $$ x_0^4 + x_1^4 - 1.925x_0^2x_1^2+x_2\le 1, x_2 \ge 0 $$
 
 ![image](./examples/3d_ellipsoid.gif)
+
+Here is another example, that we show the minimal outer ellipsoid that covers many points
+
+![image](./examples/3d_pts_ellipsoid.png)
+
 ## Getting started
 You can install the package and the dependencies through
 ```
