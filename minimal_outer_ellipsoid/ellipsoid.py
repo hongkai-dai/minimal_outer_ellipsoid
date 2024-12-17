@@ -169,7 +169,7 @@ def add_minimize_volume_cost(
     psd_mat[0, 1:] = b.T / 2
     psd_mat[1:, 0] = b / 2
     psd_mat[1:, 1:] = S
-    prog.AddPositiveSemidefiniteConstraint(psd_mat)
+    prog.AddLinearMatrixInequalityConstraint(psd_mat)
     prog.AddLogDeterminantLowerBoundConstraint(S, 0)
     prog.AddLinearCost(t)
     return t

@@ -1,5 +1,5 @@
 black
-drake
+drake>=1.36.0
 flake8
 ipykernel
 jupyter-black
